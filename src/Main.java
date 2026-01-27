@@ -74,6 +74,16 @@ public class Main {
     print(result);
   }
 
+  /**
+   * Get Movies By Genre
+   * @param genre
+   */
+  static void getMoviesByGenre(String genre) {
+    new ArrayList();
+    List<Map<String, String>> result = (List)movies.stream().filter((map) -> genre == null || genre.isEmpty() || ((String)map.get("genre")).contains(genre)).collect(Collectors.toList());
+    print(result);
+  }
+
   public static void main(String[] args) {
     try {
       movies = readCSV("/home/sumukh/Downloads/movies_large.csv");
