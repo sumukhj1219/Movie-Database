@@ -186,6 +186,48 @@ public class Main {
     }
   }
 
+  /**
+   * Update Movie Rating by movieId
+   */
+  static void updateMovieRating(String movieId, String newRating) {
+    try {
+      if (movieId == null || movieId.isEmpty()) {
+        System.out.println("Movie ID is required to update rating.");
+        return;
+      }
+
+      double ratingValue;
+      try {
+        ratingValue = Double.parseDouble(newRating);
+        if (ratingValue < 0 || ratingValue > 10) {
+          System.out.println("Rating must be between 0 and 10.");
+          return;
+        }
+      } catch (NumberFormatException e) {
+        System.out.println("Invalid rating value. Must be a number.");
+        return;
+      }
+
+      List<Map<String, String>> moviesToUpdate = movies.stream()
+              .filter(m -> movieId.equals(m.get("movieId")) || movieId.equals(m.get("id")))
+              .collect(Collectors.toList());
+
+      if (moviesToUpdate.isEmpty()) {
+        System.out.println("No movie found with ID: " + movieId);
+        return;
+      }
+
+      for (Map<String, String> movie : moviesToUpdate) {
+        movie.put("rating", newRating);
+      }
+
+      System.out.println("Updated rating of movie(s) with ID " + movieId + " to " + newRating);
+
+    } catch (Exception e) {
+      System.out.println("Error updating movie rating: " + e.getMessage());
+    }
+  }
+
 
   /**
    * Get Directors With Most Movies
@@ -326,6 +368,7 @@ public class Main {
       System.out.println("9. Get Directors With Most Movies");
       System.out.println("10. Get Actors Who Worked In Multiple Movies");
       System.out.println("11. Get Movies Of Youngest Actor");
+      System.out.println("13. Update Movie rating with id");
       System.out.println("0. Exit");
       System.out.print("Choose an option: ");
 
@@ -345,6 +388,7 @@ public class Main {
           case 10 -> getActorsWhoWorkedInMultipleMovies();
           case 11 -> getMoviesOfYoungestActor();
           case 12 -> deleteMovie("12");
+          case 13 -> updateMovieRating("23", "7.6");
           case 0 -> {
             System.out.println("Exiting... Goodbye!");
             return; // exit the menu loop
