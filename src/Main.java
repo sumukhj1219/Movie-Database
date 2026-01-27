@@ -102,12 +102,23 @@ public class Main {
     print(result);
   }
 
+  /**
+   * Get Movie By Release Year
+   * @param year
+   */
+  static void getMovieByReleaseYear(String year) {
+    List<Map<String, String>> result = movies.stream()
+            .filter(m->m.get("releaseYear").equals(year))
+            .collect(Collectors.toList());
+
+    print(result);
+  }
+
   public static void main(String[] args) {
     try {
       movies = readCSV("/home/sumukh/Downloads/movies_large.csv");
       actors = readCSV("/home/sumukh/Downloads/actors_large.csv");
       directors = readCSV("/home/sumukh/Downloads/directors_large.csv");
-
     } catch (IOException e) {
       System.out.println("CSV file not found: " + e.getMessage());
     }
