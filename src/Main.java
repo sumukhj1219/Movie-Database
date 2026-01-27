@@ -84,11 +84,30 @@ public class Main {
     print(result);
   }
 
+  /**
+   * Get Movies By Director
+   * @param directorName
+   */
+  static void getMoviesByDirector(String directorName) {
+    String directorId = directors.stream()
+            .filter(d -> d.get("name").equalsIgnoreCase(directorName))
+            .map(d->d.get("directorId"))
+            .findFirst()
+            .orElse(null);
+
+    List<Map<String, String>> result = movies.stream()
+            .filter(m->m.get("directorId").equals(directorId))
+            .collect(Collectors.toList());
+
+    print(result);
+  }
+
   public static void main(String[] args) {
     try {
       movies = readCSV("/home/sumukh/Downloads/movies_large.csv");
       actors = readCSV("/home/sumukh/Downloads/actors_large.csv");
       directors = readCSV("/home/sumukh/Downloads/directors_large.csv");
+
     } catch (IOException e) {
       System.out.println("CSV file not found: " + e.getMessage());
     }
