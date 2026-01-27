@@ -16,6 +16,8 @@ public class Main {
   static List<Map<String, String>> actors;
   static List<Map<String, String>> directors;
 
+  static Scanner sc = new Scanner(System.in);
+
   static List<Map<String, String>> readCSV(String path) throws IOException {
     List<Map<String, String>> rows = new ArrayList();
 
@@ -41,9 +43,6 @@ public class Main {
   /**
    * Utilites
    */
-  static void menu() {
-  }
-
   static void print(List<Map<String, String>> list) {
     list.forEach((map) -> System.out.println(map));
   }
@@ -86,6 +85,16 @@ public class Main {
       System.out.println("Error in getTop10RatedMovies: " + e.getMessage());
     }
   }
+
+  /** * Get Movies By Genre * @param genre */
+  static void getMoviesByGenre(String genre) {
+     List<Map<String, String>> result = (List)movies.stream()
+             .filter((map) -> genre == null || genre.isEmpty() || ((String)map.get("genre"))
+                     .contains(genre))
+             .collect(Collectors.toList());
+     print(result);
+  }
+
 
   /**
    * Get Movies By Director
@@ -242,13 +251,93 @@ public class Main {
     }
   }
 
+  /** * Get Movie By Release Year Range * @param s * @param y */
+  static void getMovieByReleaseYearRange(String s, String y) {
+    List<Map<String, String>> result = movies.stream()
+            .filter(m->{
+              int startYear = Integer.parseInt(s);
+              int endYear = Integer.parseInt(y);
+              int movieYear = Integer.parseInt(m.get("releaseYear"));
+              return movieYear >= startYear && movieYear <= endYear;
+            })
+            .collect(Collectors.toList());
+    print(result);
+  }
 
+  /** * Get Movie By Release Year * @param year */
+  static void getMovieByReleaseYear(String year) {
+    List<Map<String, String>> result = movies.stream()
+            .filter(m->m.get("releaseYear")
+                    .equals(year))
+            .collect(Collectors.toList());
+    print(result);
+  }
+
+  /** * Sorting Top 15 Movies By Release Year */
+  static void sortMoviesByReleaseYear() {
+    List<Map<String, String>> result = movies.stream()
+            .sorted((map1, map2)->
+                    Double.compare(
+                            Double.parseDouble((String)map2.get("releaseYear")),
+                            Double.parseDouble((String)map1.get("releaseYear")) ) )
+            .limit(15)
+            .collect(Collectors.toList());
+    print(result);
+  }
+
+  static void menu() {
+    while (true) {
+      System.out.println("\n====== Movie Database Menu ======");
+      System.out.println("1. Get Movie Information");
+      System.out.println("2. Get Top 10 Rated Movies");
+      System.out.println("3. Get Movies By Genre");
+      System.out.println("4. Get Movies By Director");
+      System.out.println("5. Get Movies By Release Year");
+      System.out.println("6. Get Movies By Release Year Range");
+      System.out.println("7. Add New Movie");
+      System.out.println("8. Sort Top 15 Movies By Release Year");
+      System.out.println("9. Get Directors With Most Movies");
+      System.out.println("10. Get Actors Who Worked In Multiple Movies");
+      System.out.println("11. Get Movies Of Youngest Actor");
+      System.out.println("0. Exit");
+      System.out.print("Choose an option: ");
+
+      try {
+        int choice = Integer.parseInt(sc.nextLine().trim());
+
+        switch (choice) {
+          case 1 -> getMovieInformation(101, "Action");
+          case 2 -> getTop10RatedMovies();
+          case 3 -> getMoviesByGenre("Action");
+          case 4 -> getMoviesByDirector("George Kelly");
+          case 5 -> getMovieByReleaseYear("2004");
+          case 6 -> getMovieByReleaseYearRange("2004", "2008");
+//          case 7 -> addNewMovie();
+          case 8 -> sortMoviesByReleaseYear();
+          case 9 -> getDirectorsWithMostMovies();
+          case 10 -> getActorsWhoWorkedInMultipleMovies();
+          case 11 -> getMoviesOfYoungestActor();
+          case 0 -> {
+            System.out.println("Exiting... Goodbye!");
+            return; // exit the menu loop
+          }
+          default -> System.out.println("Invalid option, try again.");
+        }
+      } catch (NumberFormatException e) {
+        System.out.println("Invalid input, please enter a number.");
+      } catch (Exception e) {
+        System.out.println("Error: " + e.getMessage());
+      }
+    }
+  }
 
   public static void main(String[] args) {
     try {
       movies = readCSV("/home/sumukh/Downloads/movies_large.csv");
       actors = readCSV("/home/sumukh/Downloads/actors_large.csv");
       directors = readCSV("/home/sumukh/Downloads/directors_large.csv");
+
+      menu();
 
     } catch (IOException e) {
       System.out.println("CSV file not found: " + e.getMessage());
