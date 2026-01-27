@@ -114,11 +114,29 @@ public class Main {
     print(result);
   }
 
+  /**
+   * Get Movie By Release Year Range
+   * @param s
+   * @param y
+   */
+  static void getMovieByReleaseYearRange(String s, String y) {
+    List<Map<String, String>> result = movies.stream()
+            .filter(m->{
+              int startYear = Integer.parseInt(s);
+              int endYear = Integer.parseInt(y);
+              int movieYear = Integer.parseInt(m.get("releaseYear"));
+              return movieYear >= startYear && movieYear <= endYear;
+            })
+            .collect(Collectors.toList());
+    print(result);
+  }
+
   public static void main(String[] args) {
     try {
       movies = readCSV("/home/sumukh/Downloads/movies_large.csv");
       actors = readCSV("/home/sumukh/Downloads/actors_large.csv");
       directors = readCSV("/home/sumukh/Downloads/directors_large.csv");
+
     } catch (IOException e) {
       System.out.println("CSV file not found: " + e.getMessage());
     }
