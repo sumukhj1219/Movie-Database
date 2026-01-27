@@ -50,224 +50,198 @@ public class Main {
 
   /**
    * Get Movie Information
-   * @param movieId
-   * @param genre
    */
   static void getMovieInformation(int movieId, String genre) {
-    String movieIdStr = String.valueOf(movieId);
-    new ArrayList();
-    List<Map<String, String>> result = (List)movies.stream().filter((map) -> movieIdStr.equals(map.get("movieId"))).filter((map) -> genre == null || genre.isEmpty() || ((String)map.get("genre")).contains(genre)).collect(Collectors.toList());
-    print(result);
+    try {
+      String movieIdStr = String.valueOf(movieId);
+      List<Map<String, String>> result = movies.stream()
+              .filter(m -> movieIdStr.equals(m.get("movieId")))
+              .filter(m -> genre == null || genre.isEmpty() || (m.get("genre") != null && m.get("genre").contains(genre)))
+              .collect(Collectors.toList());
+      print(result);
+    } catch (Exception e) {
+      System.out.println("Error in getMovieInformation: " + e.getMessage());
+    }
   }
 
   /**
    * Get Top 10 Rated Movies
    */
   static void getTop10RatedMovies() {
-    new ArrayList();
-    List<Map<String, String>> result = (List)movies.stream().sorted((map1, map2) ->
-                    Double.compare(
-                            Double.parseDouble((String)map2.get("rating")),
-                            Double.parseDouble((String)map1.get("rating"))
-                    ))
-            .limit(10L).collect(Collectors.toList());
-    print(result);
-  }
-
-  /**
-   * Get Movies By Genre
-   * @param genre
-   */
-  static void getMoviesByGenre(String genre) {
-    new ArrayList();
-    List<Map<String, String>> result = (List)movies.stream().filter((map) -> genre == null || genre.isEmpty() || ((String)map.get("genre")).contains(genre)).collect(Collectors.toList());
-    print(result);
+    try {
+      List<Map<String, String>> result = movies.stream()
+              .sorted((m1, m2) -> {
+                try {
+                  double r1 = Double.parseDouble(m1.getOrDefault("rating", "0"));
+                  double r2 = Double.parseDouble(m2.getOrDefault("rating", "0"));
+                  return Double.compare(r2, r1);
+                } catch (NumberFormatException e) {
+                  return 0; // treat invalid rating as 0
+                }
+              })
+              .limit(10)
+              .collect(Collectors.toList());
+      print(result);
+    } catch (Exception e) {
+      System.out.println("Error in getTop10RatedMovies: " + e.getMessage());
+    }
   }
 
   /**
    * Get Movies By Director
-   * @param directorName
    */
   static void getMoviesByDirector(String directorName) {
-    String directorId = directors.stream()
-            .filter(d -> d.get("name").equalsIgnoreCase(directorName))
-            .map(d->d.get("directorId"))
-            .findFirst()
-            .orElse(null);
+    try {
+      if (directorName == null || directorName.isEmpty()) {
+        System.out.println("Director name is empty");
+        return;
+      }
 
-    List<Map<String, String>> result = movies.stream()
-            .filter(m->m.get("directorId").equals(directorId))
-            .collect(Collectors.toList());
+      String directorId = directors.stream()
+              .filter(d -> directorName.equalsIgnoreCase(d.get("name")))
+              .map(d -> d.get("directorId"))
+              .findFirst()
+              .orElse(null);
 
-    print(result);
-  }
+      if (directorId == null) {
+        System.out.println("Director not found: " + directorName);
+        return;
+      }
 
-  /**
-   * Get Movie By Release Year
-   * @param year
-   */
-  static void getMovieByReleaseYear(String year) {
-    List<Map<String, String>> result = movies.stream()
-            .filter(m->m.get("releaseYear").equals(year))
-            .collect(Collectors.toList());
+      List<Map<String, String>> result = movies.stream()
+              .filter(m -> directorId.equals(m.get("directorId")))
+              .collect(Collectors.toList());
 
-    print(result);
-  }
-
-  /**
-   * Get Movie By Release Year Range
-   * @param s
-   * @param y
-   */
-  static void getMovieByReleaseYearRange(String s, String y) {
-    List<Map<String, String>> result = movies.stream()
-            .filter(m->{
-              int startYear = Integer.parseInt(s);
-              int endYear = Integer.parseInt(y);
-              int movieYear = Integer.parseInt(m.get("releaseYear"));
-              return movieYear >= startYear && movieYear <= endYear;
-            })
-            .collect(Collectors.toList());
-    print(result);
+      if (result.isEmpty()) {
+        System.out.println("No movies found for director: " + directorName);
+      } else {
+        print(result);
+      }
+    } catch (Exception e) {
+      System.out.println("Error in getMoviesByDirector: " + e.getMessage());
+    }
   }
 
   /**
    * Add New Movie
-   * @param movieId
-   * @param title
-   * @param releaseYear
-   * @param genre
-   * @param rating
-   * @param duration
-   * @param directorId
-   * @param actorIds
    */
   static void addNewMovie(String movieId, String title, String releaseYear,
                           String genre, String rating, String duration,
                           String directorId, String actorIds) {
+    try {
+      if (movieId == null || title == null) {
+        System.out.println("Movie ID and title are required");
+        return;
+      }
 
-    Map<String, String> movie = new HashMap<>();
-    movie.put("id", movieId);
-    movie.put("title", title);
-    movie.put("releaseYear", releaseYear);
-    movie.put("genre", genre);
-    movie.put("rating", rating);
-    movie.put("duration", duration);
-    movie.put("directorId", directorId);
-    movie.put("actorIds", actorIds);
+      Map<String, String> movie = new HashMap<>();
+      movie.put("id", movieId);
+      movie.put("title", title);
+      movie.put("releaseYear", releaseYear != null ? releaseYear : "Unknown");
+      movie.put("genre", genre != null ? genre : "Unknown");
+      movie.put("rating", rating != null ? rating : "0");
+      movie.put("duration", duration != null ? duration : "0");
+      movie.put("directorId", directorId != null ? directorId : "0");
+      movie.put("actorIds", actorIds != null ? actorIds : "");
 
-    movies.add(movie);
-
-    System.out.println("New movie added");
-  }
-
-  /**
-   * Sorting Top 15 Movies By Release Year
-   */
-  static void sortMoviesByReleaseYear() {
-    List<Map<String, String>> result = movies.stream()
-            .sorted((map1, map2)->
-                    Double.compare(
-                            Double.parseDouble((String)map2.get("releaseYear")),
-                            Double.parseDouble((String)map1.get("releaseYear"))
-                    )
-            )
-            .limit(15)
-            .collect(Collectors.toList());
-
-    print(result);
+      movies.add(movie);
+      System.out.println("New movie added: " + title);
+    } catch (Exception e) {
+      System.out.println("Error in addNewMovie: " + e.getMessage());
+    }
   }
 
   /**
    * Get Directors With Most Movies
    */
   static void getDirectorsWithMostMovies() {
-    Map<String, Long> movieCountByDirector =
-            movies.stream()
-                    .collect(Collectors.groupingBy(
-                            m -> m.get("directorId"),
-                            Collectors.counting()
-                    ));
+    try {
+      Map<String, Long> movieCountByDirector = movies.stream()
+              .collect(Collectors.groupingBy(
+                      m -> m.getOrDefault("directorId", "0"),
+                      Collectors.counting()
+              ));
 
-    long maxMovies = movieCountByDirector.values()
-            .stream()
-            .max(Long::compare)
-            .orElse(0L);
+      long maxMovies = movieCountByDirector.values().stream()
+              .max(Long::compare)
+              .orElse(0L);
 
-    directors.stream()
-            .filter(d ->
-                    movieCountByDirector.getOrDefault(d.get("directorId"), 0L) == maxMovies
-            )
-            .forEach(d ->
-                    System.out.println(
-                            d.get("name") + " (" + maxMovies + " movies)"
-                    )
-            );
+      directors.stream()
+              .filter(d -> movieCountByDirector.getOrDefault(d.get("directorId"), 0L) == maxMovies)
+              .forEach(d -> System.out.println(d.get("name") + " (" + maxMovies + " movies)"));
+    } catch (Exception e) {
+      System.out.println("Error in getDirectorsWithMostMovies: " + e.getMessage());
+    }
   }
 
   /**
    * Get Actors Who Worked In Multiple Movies
    */
   static void getActorsWhoWorkedInMultipleMovies() {
-    Map<String, Long> movieCountByActor =
-            movies.stream()
-                    .flatMap(m -> Arrays.stream(m.get("actorIds").split(",")))
-                    .map(String::trim)
-                    .collect(Collectors.groupingBy(
-                            actorId -> actorId,
-                            Collectors.counting()
-                    ));
+    try {
+      Map<String, Long> movieCountByActor = movies.stream()
+              .flatMap(m -> {
+                String ids = m.getOrDefault("actorIds", "");
+                return Arrays.stream(ids.split(",")).map(String::trim);
+              })
+              .collect(Collectors.groupingBy(a -> a, Collectors.counting()));
 
-    actors.stream()
-            .filter(a ->
-                    movieCountByActor.getOrDefault(a.get("actorId"), 0L) > 1
-            )
-            .forEach(a ->
-                    System.out.println(
-                            a.get("name") + " (" +
-                                    movieCountByActor.get(a.get("actorId")) + " movies)"
-                    )
-            );
+      actors.stream()
+              .filter(a -> movieCountByActor.getOrDefault(a.get("actorId"), 0L) > 1)
+              .forEach(a -> System.out.println(a.get("name") + " (" +
+                      movieCountByActor.get(a.get("actorId")) + " movies)"));
+    } catch (Exception e) {
+      System.out.println("Error in getActorsWhoWorkedInMultipleMovies: " + e.getMessage());
+    }
   }
 
   /**
-   * Utlity function to calculate youngest actor
+   * Get Movies of Youngest Actor
    */
-  static Map<String, String> getYoungestActor() throws ParseException {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Date referenceDate = sdf.parse("2025-02-10");
+  static void getMoviesOfYoungestActor() {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+      Date referenceDate = sdf.parse("2025-02-10");
 
-    return actors.stream()
-            .min((a1, a2) -> {
-              try {
-                Date dob1 = sdf.parse(a1.get("dateOfBirth"));
-                Date dob2 = sdf.parse(a2.get("dateOfBirth"));
-                // younger = later dateOfBirth
-                return dob2.compareTo(dob1);
-              } catch (ParseException e) {
-                throw new RuntimeException(e);
-              }
-            })
-            .orElse(null);
-  }
+      Map<String, String> youngestActor = actors.stream()
+              .min((a1, a2) -> {
+                try {
+                  Date dob1 = sdf.parse(a1.get("dateOfBirth"));
+                  Date dob2 = sdf.parse(a2.get("dateOfBirth"));
+                  return dob2.compareTo(dob1); // later DOB = younger
+                } catch (ParseException e) {
+                  return 0;
+                }
+              })
+              .orElse(null);
 
-  static void getMoviesOfYoungestActor() throws ParseException {
-    Map<String, String> youngestActor = getYoungestActor();
-    if (youngestActor == null) {
-      System.out.println("No actors found.");
-      return;
+      if (youngestActor == null) {
+        System.out.println("No actors found.");
+        return;
+      }
+
+      String actorId = youngestActor.get("actorId");
+      String actorName = youngestActor.get("name");
+      System.out.println("Youngest actor: " + actorName);
+
+      List<Map<String, String>> result = movies.stream()
+              .filter(m -> Arrays.asList(m.getOrDefault("actorIds", "").split(","))
+                      .contains(actorId))
+              .collect(Collectors.toList());
+
+      if (result.isEmpty()) {
+        System.out.println("No movies found for actor: " + actorName);
+      } else {
+        print(result);
+      }
+
+    } catch (ParseException e) {
+      System.out.println("Date parsing error: " + e.getMessage());
+    } catch (Exception e) {
+      System.out.println("Error in getMoviesOfYoungestActor: " + e.getMessage());
     }
-
-    String actorId = youngestActor.get("actorId");
-    String actorName = youngestActor.get("name");
-
-    System.out.println("Youngest actor: " + actorName);
-
-    movies.stream()
-            .filter(m -> Arrays.asList(m.get("actorIds").split(","))
-                    .contains(actorId))
-            .forEach(m -> System.out.println(m.get("title")));
   }
+
 
 
   public static void main(String[] args) {
