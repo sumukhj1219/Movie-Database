@@ -69,7 +69,8 @@ public class Main {
     List<Map<String, String>> result = (List)movies.stream().sorted((map1, map2) ->
                     Double.compare(
                             Double.parseDouble((String)map2.get("rating")),
-                            Double.parseDouble((String)map1.get("rating"))))
+                            Double.parseDouble((String)map1.get("rating"))
+                    ))
             .limit(10L).collect(Collectors.toList());
     print(result);
   }
@@ -161,6 +162,22 @@ public class Main {
     System.out.println("New movie added");
   }
 
+  /**
+   * Sorting Top 15 Movies By Release Year
+   */
+  static void sortMoviesByReleaseYear() {
+    List<Map<String, String>> result = movies.stream()
+            .sorted((map1, map2)->
+                    Double.compare(
+                            Double.parseDouble((String)map2.get("releaseYear")),
+                            Double.parseDouble((String)map1.get("releaseYear"))
+                    )
+            )
+            .limit(15)
+            .collect(Collectors.toList());
+
+    print(result);
+  }
 
 
 
@@ -169,7 +186,7 @@ public class Main {
       movies = readCSV("/home/sumukh/Downloads/movies_large.csv");
       actors = readCSV("/home/sumukh/Downloads/actors_large.csv");
       directors = readCSV("/home/sumukh/Downloads/directors_large.csv");
-
+      sortMoviesByReleaseYear();
     } catch (IOException e) {
       System.out.println("CSV file not found: " + e.getMessage());
     }
