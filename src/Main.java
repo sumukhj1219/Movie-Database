@@ -131,6 +131,39 @@ public class Main {
     print(result);
   }
 
+  /**
+   * Add New Movie
+   * @param movieId
+   * @param title
+   * @param releaseYear
+   * @param genre
+   * @param rating
+   * @param duration
+   * @param directorId
+   * @param actorIds
+   */
+  static void addNewMovie(String movieId, String title, String releaseYear,
+                          String genre, String rating, String duration,
+                          String directorId, String actorIds) {
+
+    Map<String, String> movie = new HashMap<>();
+    movie.put("id", movieId);
+    movie.put("title", title);
+    movie.put("releaseYear", releaseYear);
+    movie.put("genre", genre);
+    movie.put("rating", rating);
+    movie.put("duration", duration);
+    movie.put("directorId", directorId);
+    movie.put("actorIds", actorIds);
+
+    movies.add(movie);
+
+    System.out.println("New movie added");
+  }
+
+
+
+
   public static void main(String[] args) {
     try {
       movies = readCSV("/home/sumukh/Downloads/movies_large.csv");
