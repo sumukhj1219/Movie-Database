@@ -6,10 +6,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -206,6 +203,31 @@ public class Main {
             );
   }
 
+  /**
+   * Get Actors Who Worked In Multiple Movies
+   */
+  static void getActorsWhoWorkedInMultipleMovies() {
+    Map<String, Long> movieCountByActor =
+            movies.stream()
+                    .flatMap(m -> Arrays.stream(m.get("actorIds").split(",")))
+                    .map(String::trim)
+                    .collect(Collectors.groupingBy(
+                            actorId -> actorId,
+                            Collectors.counting()
+                    ));
+
+    actors.stream()
+            .filter(a ->
+                    movieCountByActor.getOrDefault(a.get("actorId"), 0L) > 1
+            )
+            .forEach(a ->
+                    System.out.println(
+                            a.get("name") + " (" +
+                                    movieCountByActor.get(a.get("actorId")) + " movies)"
+                    )
+            );
+  }
+
 
 
   public static void main(String[] args) {
@@ -214,7 +236,7 @@ public class Main {
       actors = readCSV("/home/sumukh/Downloads/actors_large.csv");
       directors = readCSV("/home/sumukh/Downloads/directors_large.csv");
 
-      getDirectorsWithMostMovies();
+      getActorsWhoWorkedInMultipleMovies();
     } catch (IOException e) {
       System.out.println("CSV file not found: " + e.getMessage());
     }
