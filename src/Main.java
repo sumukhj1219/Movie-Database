@@ -179,6 +179,33 @@ public class Main {
     print(result);
   }
 
+  /**
+   * Get Directors With Most Movies
+   */
+  static void getDirectorsWithMostMovies() {
+    Map<String, Long> movieCountByDirector =
+            movies.stream()
+                    .collect(Collectors.groupingBy(
+                            m -> m.get("directorId"),
+                            Collectors.counting()
+                    ));
+
+    long maxMovies = movieCountByDirector.values()
+            .stream()
+            .max(Long::compare)
+            .orElse(0L);
+
+    directors.stream()
+            .filter(d ->
+                    movieCountByDirector.getOrDefault(d.get("directorId"), 0L) == maxMovies
+            )
+            .forEach(d ->
+                    System.out.println(
+                            d.get("name") + " (" + maxMovies + " movies)"
+                    )
+            );
+  }
+
 
 
   public static void main(String[] args) {
@@ -186,7 +213,8 @@ public class Main {
       movies = readCSV("/home/sumukh/Downloads/movies_large.csv");
       actors = readCSV("/home/sumukh/Downloads/actors_large.csv");
       directors = readCSV("/home/sumukh/Downloads/directors_large.csv");
-      sortMoviesByReleaseYear();
+
+      getDirectorsWithMostMovies();
     } catch (IOException e) {
       System.out.println("CSV file not found: " + e.getMessage());
     }
