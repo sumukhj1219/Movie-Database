@@ -161,6 +161,33 @@ public class Main {
   }
 
   /**
+   * Delete a Movie by movieId
+   */
+  static void deleteMovie(String movieId) {
+    try {
+      if (movieId == null || movieId.isEmpty()) {
+        System.out.println("Movie ID is required to delete a movie.");
+        return;
+      }
+
+      // Find movie(s) matching the movieId
+      List<Map<String, String>> toRemove = movies.stream()
+              .filter(m -> movieId.equals(m.get("movieId")) || movieId.equals(m.get("id")))
+              .collect(Collectors.toList());
+
+      if (toRemove.isEmpty()) {
+        System.out.println("No movie found with ID: " + movieId);
+      } else {
+        movies.removeAll(toRemove);
+        System.out.println("Deleted movie(s) with ID: " + movieId);
+      }
+    } catch (Exception e) {
+      System.out.println("Error deleting movie: " + e.getMessage());
+    }
+  }
+
+
+  /**
    * Get Directors With Most Movies
    */
   static void getDirectorsWithMostMovies() {
@@ -317,6 +344,7 @@ public class Main {
           case 9 -> getDirectorsWithMostMovies();
           case 10 -> getActorsWhoWorkedInMultipleMovies();
           case 11 -> getMoviesOfYoungestActor();
+          case 12 -> deleteMovie("12");
           case 0 -> {
             System.out.println("Exiting... Goodbye!");
             return; // exit the menu loop
