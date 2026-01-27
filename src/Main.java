@@ -6,6 +6,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -228,6 +230,44 @@ public class Main {
             );
   }
 
+  /**
+   * Utlity function to calculate youngest actor
+   */
+  static Map<String, String> getYoungestActor() throws ParseException {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    Date referenceDate = sdf.parse("2025-02-10");
+
+    return actors.stream()
+            .min((a1, a2) -> {
+              try {
+                Date dob1 = sdf.parse(a1.get("dateOfBirth"));
+                Date dob2 = sdf.parse(a2.get("dateOfBirth"));
+                // younger = later dateOfBirth
+                return dob2.compareTo(dob1);
+              } catch (ParseException e) {
+                throw new RuntimeException(e);
+              }
+            })
+            .orElse(null);
+  }
+
+  static void getMoviesOfYoungestActor() throws ParseException {
+    Map<String, String> youngestActor = getYoungestActor();
+    if (youngestActor == null) {
+      System.out.println("No actors found.");
+      return;
+    }
+
+    String actorId = youngestActor.get("actorId");
+    String actorName = youngestActor.get("name");
+
+    System.out.println("Youngest actor: " + actorName);
+
+    movies.stream()
+            .filter(m -> Arrays.asList(m.get("actorIds").split(","))
+                    .contains(actorId))
+            .forEach(m -> System.out.println(m.get("title")));
+  }
 
 
   public static void main(String[] args) {
@@ -236,7 +276,6 @@ public class Main {
       actors = readCSV("/home/sumukh/Downloads/actors_large.csv");
       directors = readCSV("/home/sumukh/Downloads/directors_large.csv");
 
-      getActorsWhoWorkedInMultipleMovies();
     } catch (IOException e) {
       System.out.println("CSV file not found: " + e.getMessage());
     }
