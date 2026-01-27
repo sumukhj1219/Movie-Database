@@ -61,6 +61,18 @@ public class Main {
     print(result);
   }
 
+  /**
+   * Get Top 10 Rated Movies
+   */
+  static void getTop10RatedMovies() {
+    new ArrayList();
+    List<Map<String, String>> result = (List)movies.stream().sorted((map1, map2) ->
+                    Double.compare(
+                            Double.parseDouble((String)map2.get("rating")),
+                            Double.parseDouble((String)map1.get("rating"))))
+            .limit(10L).collect(Collectors.toList());
+    print(result);
+  }
 
   public static void main(String[] args) {
     try {
